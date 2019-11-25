@@ -68,11 +68,22 @@ class Cryptos extends Model
 
     /**
      * Cambia el estado de una crypto moneda
+     * @param Request $request
+     * @return array 
      */
     public static function change($request){
         return self::where('id',$request->id)->update([
             ($request->type == "habilitate") ? "estatus":"default_coin" => $request->switch
         ]);
+    }
+
+    /**
+     * Obtener las monedas que estan activas
+     * @param null
+     * @return array 
+     */
+    public static function getActive(){
+        return self::select('id','base')->where('estatus',true)->get()->toArray();
     }
 
 }

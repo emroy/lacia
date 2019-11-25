@@ -189,11 +189,15 @@ class InvestorController extends Controller
     public function archiveTransaction(Request $request){
         try {
 
+            DB::beginTransaction();
+
             if(!$request->id){
                 throw new \Exception('Error de parametros de request');
             }
 
             Transaccion::archive($request->id);
+
+            DB::commit();
 
             return response()->json([
                 'success' => 'Transacción Archivada'
@@ -201,6 +205,8 @@ class InvestorController extends Controller
             
 
         } catch( \Exception $e) {
+
+            DB::rollBack();
             return response()->json([
                 'error' => $e->getMessage()
             ]);

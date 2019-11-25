@@ -247,7 +247,8 @@ function prevTab(elem) {
 }
 
 function archive(element,id){
-    var tr = $(element).parent().parent();
+    var $tr = $(element).parent().parent();
+    var $id = id;
     swal({
         title: '¿Archivar esta transacción?',
         text: "Esta acción es irreversible ",
@@ -261,12 +262,10 @@ function archive(element,id){
             $.ajax({
                 url: '/transaction/archive',
                 type:'post',
-                data:{...id},
+                data:{id:$id},
                 success: res => {
                     if(res.success){
-                        swal(res.success,'reiniciando información de cuenta','success').then(() => {
-                            location.reload()
-                        });
+                        $tr.fadeOut()
                     }
                 }
             });
