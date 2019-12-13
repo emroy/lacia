@@ -26,14 +26,28 @@ class EngineController extends Controller
 
 
             foreach($exchanges as $key => $value){
-                $client = new Client(['base_uri' => (string) $value['api_private']]);
 
-                $response[$key] = $client->request('POST', 'command=returnBalances&nonce=154264078495300',[
-                    'Key' => decrypt($value['api_key']),
-                    'Sign' => decrypt($value['api_secret'])
+                $nonce = strtotime(date('d-m-Y H:m:s'));
+                $key = decrypt($value['api_key']);
+                $secret = decrypt($value['api_secret']);
+
+                $r1 = exec("echo -n \"command=returnBalances&nonce={$nonce}\" | openssl sha512 -hmac {$secret}");
+                $sign = trim(explode("=",$r1)[1]);
+                
+                $client = new Client([
+                    'headers' => [
+                        'Key' => $key,
+                        'Sign' => $sign
+                    ]
                 ]);
 
-                dump($response[$key]);
+                $r = exec("curl -X POST -d \"command=returnCompleteBalances&nonce={$nonce}\" -H \"Key:{$key}\" -H \"Sign:{$sign}\" https://poloniex.com/tradingApi");
+        
+                $response[$key] = $client->request('POST', $value['api_private'], ['body' => "command=returnCompleteBalances&nonce={$nonce}"]);
+                $content = $response[$key]->getBody()->getContents();
+
+                dd($content);
+
             }   
 
         } catch ( DecryptException $de) {
@@ -51,12 +65,5 @@ class EngineController extends Controller
 
         }
 
-
-/*
-        curl -X POST \
-     -d "command=returnBalances&nonce=154264078495300" \
-     -H "Key: 7BCLAZQZ-HKLK9K6U-3MP1RNV9-2LS1L33J" \
-     -H "Sign: 2a7849ecf...ae71161c8e9a364e21d9de9" \
-     https://poloniex.com/tradingApi*/
     }
 }
