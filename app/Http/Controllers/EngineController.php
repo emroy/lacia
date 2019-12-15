@@ -27,26 +27,25 @@ class EngineController extends Controller
 
             foreach($exchanges as $key => $value){
 
-                $nonce = strtotime(date('d-m-Y H:m:s'));
+                $nonce = (string) round(microtime(true) * 3000).'000000';
                 $key = decrypt($value['api_key']);
                 $secret = decrypt($value['api_secret']);
+                $command = "command=returnOpenOrders&currencyPair=BTC_ETH&currencyPair=all"."&nonce={$nonce}";
 
-                $r1 = exec("echo -n \"command=returnBalances&nonce={$nonce}\" | openssl sha512 -hmac {$secret}");
+                $r1 = exec("echo -n \"{$command}\" | openssl sha512 -hmac {$secret}");
+
                 $sign = trim(explode("=",$r1)[1]);
-                
+
                 $client = new Client([
                     'headers' => [
                         'Key' => $key,
-                        'Sign' => $sign
+                        'Sign' => $sign,
                     ]
                 ]);
 
-                $r = exec("curl -X POST -d \"command=returnCompleteBalances&nonce={$nonce}\" -H \"Key:{$key}\" -H \"Sign:{$sign}\" https://poloniex.com/tradingApi");
-        
-                $response[$key] = $client->request('POST', $value['api_private'], ['body' => "command=returnCompleteBalances&nonce={$nonce}"]);
-                $content = $response[$key]->getBody()->getContents();
+                $r = exec("curl -X POST -d \"{$command}\" -H \"Key:{$key}\" -H \"Sign:{$sign}\" https://poloniex.com/tradingApi");
 
-                dd($content);
+                dd(json_decode($r));
 
             }   
 
