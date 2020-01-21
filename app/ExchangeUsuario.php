@@ -13,12 +13,12 @@ class ExchangeUsuario extends Model
         'id_usuario','id_exchange','estatus','api_key','api_secret'
     ];
 
-    public function usuarios(){
+    public function usuario(){
         return $this->belongsTo(\App\Usuario::class, 'id_e');
     }
 
-    public function exchanges(){
-        return $this->belongsTo(\App\Exchange::class, 'id');
+    public function exchange(){
+        return $this->belongsTo(\App\Exchange::class, 'id_exchange');
     }
 
     /**

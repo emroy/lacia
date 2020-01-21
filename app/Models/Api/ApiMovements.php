@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models\Api;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,9 +14,11 @@ class ApiMovements extends Model
         'str_api',
         'cod_exchange',
         'estatus',
+        'hmac',
+        'is_private',
     ];
 
-    public function params(){
+    public function movementParams(){
         return $this->hasMany(ApiParamsOfMovement::class, 'cod_api_movement');
     }
 }
